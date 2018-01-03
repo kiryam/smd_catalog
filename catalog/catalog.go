@@ -107,8 +107,8 @@ func (c *Catalog) Post(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	w.Write(jsoned)
 }
 
@@ -139,8 +139,8 @@ func (c *Catalog) Put(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	w.Write(jsoned)
 }
 
@@ -164,13 +164,12 @@ func (c *Catalog) Delete(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "{\"status\": \"ok\"}")
 }
 
 func (c *Catalog) List(w http.ResponseWriter, req *http.Request) {
-	w.WriteHeader(http.StatusOK)
 	answer := ListAnswer{}
 	answer.Items = append(answer.Items, storage.CatalogItem{Name: "item"})
 
@@ -181,6 +180,7 @@ func (c *Catalog) List(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	w.Write(jsonded)
 }
 

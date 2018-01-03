@@ -7,15 +7,21 @@ import (
 	"fmt"
 	"encoding/json"
 	"log"
+	"github.com/skip2/go-qrcode"
+	"encoding/base64"
 )
 
 type ComDB struct {
 	storage storage.Storage
 }
 
-
 type PutAnswer struct {
 	Id int `json:"id"`
+}
+
+type DetailAnswer struct {
+	storage.ComItem
+	QrCode string `json:"qr_code"`
 }
 
 func NewComDB() (*ComDB, error)  {
@@ -46,7 +52,8 @@ func (c *ComDB) GetServeMux() http.Handler {
 			c.Delete(w, r)
 		} else if r.Method == "POST" {
 			c.Post(w, r)
-		} else {
+		} else if r.Method == "GET" {
+			c.Detail(w, r)
 		}
 	})
 	return mux
@@ -103,8 +110,8 @@ func (c *ComDB) Post(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	w.Write(jsoned)
 }
 
@@ -135,8 +142,8 @@ func (c *ComDB) Put(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	w.Write(jsoned)
 }
 
@@ -160,7 +167,46 @@ func (c *ComDB) Delete(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "{\"status\": \"ok\"}")
+}
+
+func (c *ComDB) Detail(w http.ResponseWriter, req *http.Request) {
+	id := req.FormValue("id")
+	if id == "" {
+		http.Error(w, "`id` can't be empty", 400)
+		return
+	}
+
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, "`id` failed to parse", 400)
+		return
+	}
+
+	var item storage.ComItem
+	item, err = c.storage.Get(i)
+	if err != nil {
+		http.Error(w, "Not found", 404)
+		return
+	}
+
+	var png []byte
+	png, err = qrcode.Encode(fmt.Sprintf("http://%s/components/?id=", req.Host, i), qrcode.Medium, 256)
+
+	answer := DetailAnswer{
+		item,
+		fmt.Sprintf("data:image/png;base64,%s", base64.StdEncoding.EncodeToString([]byte(png))),
+	}
+
+	buf, err := json.Marshal(answer)
+	if err != nil {
+		log.Println(fmt.Sprintf("Failed to marhal id: `%d`", i))
+		http.Error(w, "Internal server error", 500)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(buf)
 }

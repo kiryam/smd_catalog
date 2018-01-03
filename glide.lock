@@ -1,8 +1,14 @@
-hash: 5775bab48284bc11750b5452703006b507017479ce397dfda7582683ddce1e3c
-updated: 2018-01-03T13:57:50.006049+03:00
+hash: 744b0162f8b1fdfd4a1bc698e81b7f701e403bc5866245fc05cfffba1361e3f7
+updated: 2018-01-03T17:00:36.742956+03:00
 imports:
 - name: github.com/boltdb/bolt
   version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
+- name: github.com/skip2/go-qrcode
+  version: cf5f9fa2f0d847edb8e038db7ed975e239095e1a
+- name: golang.org/x/sys
+  version: 83801418e1b59fb1880e363299581ee543af32ca
+  subpackages:
+  - unix
 testImports: []
