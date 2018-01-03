@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"smd_catalog"
-	"smd_catalog/catalog"
-	"smd_catalog/comdb"
 	"os"
 	"log"
+	"github.com/kiryam/smd_catalog/catalog"
+	"github.com/kiryam/smd_catalog/comdb"
+	"github.com/kiryam/smd_catalog"
 )
 
 func main() {
