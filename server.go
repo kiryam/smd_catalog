@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"smd_catalog/catalog"
-	"smd_catalog/comdb"
+	"github.com/kiryam/smd_catalog/catalog"
+	"github.com/kiryam/smd_catalog/comdb"
 )
 
 type ApiServer struct {
