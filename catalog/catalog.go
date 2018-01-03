@@ -2,10 +2,11 @@ package catalog
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
+	"fmt"
+	"log"
 	"net/http"
 	"smd_catalog/catalog/storage"
-	"log"
+	"strconv"
 )
 
 type Catalog struct {
@@ -44,11 +45,72 @@ func (c *Catalog) GetServeMux() http.Handler {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "PUT" {
 			c.Put(w, r)
+		} else if r.Method == "DELETE" {
+			c.Delete(w, r)
+		} else if r.Method == "POST" {
+			c.Post(w, r)
 		} else {
 			c.List(w, r)
 		}
 	})
 	return mux
+}
+
+
+func (c *Catalog) Post(w http.ResponseWriter, req *http.Request) {
+	id := req.PostFormValue("id")
+	if id == "" {
+		http.Error(w, "`id` can't be empty", 400)
+		return
+	}
+
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, "`id` failed to parse", 400)
+		return
+	}
+
+	var item storage.CatalogItem
+	item, err = c.storage.Get(i)
+
+	if err != nil {
+		http.Error(w, "Item not found", 404)
+		return
+	}
+
+	parent := req.PostFormValue("parent")
+	if parent != "" {
+		parent_id, err := strconv.Atoi(parent)
+		if err != nil {
+			http.Error(w, "`parent` failed to parse", 400)
+			return
+		}
+		item.Parent = parent_id
+	}
+
+	name := req.PostFormValue("name")
+	if name != "" {
+		item.Name = name
+	}
+
+	var jsoned []byte
+	jsoned, err = json.Marshal(item)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Failed to serialize", 400)
+		return
+	}
+
+	err = c.storage.Update(i, item)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Failed to update", 400)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsoned)
 }
 
 func (c *Catalog) Put(w http.ResponseWriter, req *http.Request) {
@@ -57,7 +119,7 @@ func (c *Catalog) Put(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if item.Name == "" {
-		c.Error(w, errors.New("Name field can't be empty"), 400)
+		http.Error(w, "Name field can't be empty", 400)
 		return
 	}
 
@@ -84,7 +146,28 @@ func (c *Catalog) Put(w http.ResponseWriter, req *http.Request) {
 }
 
 func (c *Catalog) Delete(w http.ResponseWriter, req *http.Request) {
+	id := req.FormValue("id")
+	if id == "" {
+		http.Error(w, "`id` can't be empty", 400)
+		return
+	}
 
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, "`id` failed to parse", 400)
+		return
+	}
+
+	err = c.storage.Delete(i)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Failed to delete", 400)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, "{\"status\": \"ok\"}")
 }
 
 func (c *Catalog) Assign(w http.ResponseWriter, req *http.Request) {
@@ -101,8 +184,9 @@ func (c *Catalog) List(w http.ResponseWriter, req *http.Request) {
 		c.Error(w, err, 500)
 		return
 	}
-	w.Write(jsonded)
 
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonded)
 }
 
 func (c *Catalog) Error(w http.ResponseWriter, e error, code int) {

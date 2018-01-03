@@ -70,12 +70,52 @@ func (s *BoltStorage) Add(item CatalogItem) (int, error) {
 	return item.ID, err
 }
 
-func (s *BoltStorage) Delete(id int) {
+func (s *BoltStorage) Get(id int) (CatalogItem, error) {
+	var item CatalogItem
+	err := s.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(BUCKET))
+		if b == nil {
+			return errors.New("Bucket does not exists")
+		}
 
+		buf := b.Get(itob(id))
+		if buf == nil {
+			return errors.New("Item not found")
+		}
+		return json.Unmarshal(buf, &item)
+	})
+	return item, err
 }
 
-func (s *BoltStorage) SetParent(id int, parent int) {
+func (s *BoltStorage) Delete(id int) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte(BUCKET))
+		if err != nil {
+			return err
+		}
+		return b.Delete(itob(id))
+	})
+}
 
+func (s *BoltStorage) Update(id int, item CatalogItem) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte(BUCKET))
+		if err != nil {
+			return err
+		}
+
+		buf := b.Get(itob(id))
+		if buf == nil {
+			return errors.New("Not found")
+		}
+
+		jsoned, err := json.Marshal(item)
+		if err != nil {
+			return errors.New(fmt.Sprintf("Failed to marshal id: %d", id))
+		}
+
+		return b.Put(itob(id), jsoned)
+	})
 }
 
 func itob(v int) []byte {
