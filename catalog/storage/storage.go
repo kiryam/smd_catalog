@@ -1,6 +1,7 @@
 package storage
 
 type CatalogItem struct {
+	ID int `json:"ID"`
 	Name string `json:"name"`
 }
 

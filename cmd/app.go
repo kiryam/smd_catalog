@@ -5,6 +5,7 @@ import (
 	"smd_catalog"
 	"smd_catalog/catalog"
 	"content_api/common/log"
+	"os"
 )
 
 func main() {
@@ -21,4 +22,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+
+	os.Exit(3)
 }
