@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"smd_catalog"
 	"smd_catalog/catalog"
-	"content_api/common/log"
+	"smd_catalog/comdb"
 	"os"
+	"log"
 )
 
 func main() {
@@ -16,7 +17,13 @@ func main() {
 	}
 	defer c.Close()
 
-	server := smd_catalog.NewApiServer(8080, c)
+	comdb, err := comdb.NewComDB()
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Failed to initialize components db (%s)", err.Error()))
+	}
+	defer comdb.Close()
+
+	server := smd_catalog.NewApiServer(8080, c, comdb)
 	err = server.Start()
 
 	if err != nil {

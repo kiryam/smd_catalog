@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"smd_catalog/catalog"
+	"smd_catalog/comdb"
 )
 
 type ApiServer struct {
 	port    int
 	catalog *catalog.Catalog
+	comdb   *comdb.ComDB
 }
 
 type smdCatalogAnswer struct {
@@ -17,14 +19,15 @@ type smdCatalogAnswer struct {
 	Error   string `json:"Error"`
 }
 
-func NewApiServer(port int, catalog *catalog.Catalog) *ApiServer {
-	api := &ApiServer{port: port, catalog: catalog}
+func NewApiServer(port int, catalog *catalog.Catalog, comdb *comdb.ComDB) *ApiServer {
+	api := &ApiServer{port: port, catalog: catalog, comdb: comdb}
 	return api
 }
 
 func (s *ApiServer) Start() error {
 	mux := http.NewServeMux()
-	mux.Handle("/catalog/",  http.StripPrefix("/catalog", s.catalog.GetServeMux()))
+	mux.Handle("/catalog/", http.StripPrefix("/catalog", s.catalog.GetServeMux()))
+	mux.Handle("/components/", http.StripPrefix("/components", s.comdb.GetServeMux()))
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		answer := smdCatalogAnswer{Message: "SmdCatalog"}
