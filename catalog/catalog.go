@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"smd_catalog/catalog/storage"
+	"github.com/kiryam/smd_catalog/catalog/storage"
 	"strconv"
 )
 

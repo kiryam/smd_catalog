@@ -2,7 +2,7 @@ package comdb
 
 import (
 	"net/http"
-	"smd_catalog/comdb/storage"
+	"github.com/kiryam/smd_catalog/comdb/storage"
 	"strconv"
 	"fmt"
 	"encoding/json"
