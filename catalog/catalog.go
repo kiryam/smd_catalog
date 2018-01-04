@@ -56,7 +56,7 @@ func (c *Catalog) GetServeMux() http.Handler {
 	return mux
 }
 
-func (c *Catalog) Post(w http.ResponseWriter, req *http.Request) {
+func (c *Catalog) Put(w http.ResponseWriter, req *http.Request) {
 	id := req.PostFormValue("id")
 	if id == "" {
 		http.Error(w, "`id` can't be empty", 400)
@@ -112,7 +112,7 @@ func (c *Catalog) Post(w http.ResponseWriter, req *http.Request) {
 	w.Write(jsoned)
 }
 
-func (c *Catalog) Put(w http.ResponseWriter, req *http.Request) {
+func (c *Catalog) Post(w http.ResponseWriter, req *http.Request) {
 	item := storage.CatalogItem{
 		Name: req.PostFormValue("name"),
 	}

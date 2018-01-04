@@ -59,7 +59,7 @@ func (c *ComDB) GetServeMux() http.Handler {
 	return mux
 }
 
-func (c *ComDB) Post(w http.ResponseWriter, req *http.Request) {
+func (c *ComDB) Put(w http.ResponseWriter, req *http.Request) {
 	id := req.PostFormValue("id")
 	if id == "" {
 		http.Error(w, "`id` can't be empty", 400)
@@ -115,7 +115,7 @@ func (c *ComDB) Post(w http.ResponseWriter, req *http.Request) {
 	w.Write(jsoned)
 }
 
-func (c *ComDB) Put(w http.ResponseWriter, req *http.Request) {
+func (c *ComDB) Post(w http.ResponseWriter, req *http.Request) {
 	item := storage.ComItem{
 		Name: req.PostFormValue("name"),
 	}
