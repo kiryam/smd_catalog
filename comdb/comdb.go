@@ -39,7 +39,7 @@ func NewComDB() (*ComDB, error)  {
 
 func (c *ComDB) Close() {
 	if c.storage != nil {
-		c.Close()
+		c.storage.Close()
 	}
 }
 

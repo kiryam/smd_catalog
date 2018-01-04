@@ -36,7 +36,7 @@ func NewCatalog() (*Catalog, error) {
 
 func (c *Catalog) Close() {
 	if c.storage != nil {
-		c.Close()
+		c.storage.Close()
 	}
 }
 
